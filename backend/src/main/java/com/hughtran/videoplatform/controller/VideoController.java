@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/videos")
 @RequiredArgsConstructor
@@ -42,5 +44,17 @@ public class VideoController {
     @ResponseStatus(HttpStatus.OK)
     public VideoDto editVideoMetadata(@RequestBody @Validated VideoDto videoMetaDataDto) {
         return videoService.editVideoMetadata(videoMetaDataDto);
+    }
+
+    @GetMapping("{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public VideoDto getVideoMetaData(@PathVariable String id) {
+        return videoService.getVideo(id);
+    }
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public List<VideoDto> getVideoMetaData() {
+        return videoService.getAllVideos();
     }
 }
