@@ -1,14 +1,12 @@
 package com.hughtran.videoplatform.controller;
 
-import com.hughtran.videoplatform.dto.UserInfoDTO;
 import com.hughtran.videoplatform.service.UserRegistrationService;
 import com.hughtran.videoplatform.service.UserService;
-import com.hughtran.videoplatform.service.UserValidationService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.security.oauth2.jwt.Jwt;
 import java.util.Set;
 
 @RestController
@@ -16,27 +14,36 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserService userService;
-    private final UserValidationService userValidationService;
     private final UserRegistrationService userRegistrationService;
+    private final UserService userService;
 
-    @GetMapping("{id}/history")
+    @GetMapping("/register")
     @ResponseStatus(HttpStatus.OK)
-    public Set<String> userHistory(@PathVariable String id) {
-        return userService.getHistory(id);
-    }
+    public String register(Authentication authentication) {
+        Jwt jwt = (Jwt) authentication.getPrincipal();
 
-    @GetMapping("validate")
-    @ResponseStatus(HttpStatus.OK)
-    public UserInfoDTO registerUser(HttpServletRequest httpServletRequest) {
-        var userInfoDTO = userValidationService.validate(httpServletRequest.getHeader("Authorization"));
-        userRegistrationService.register(userInfoDTO);
-        return userInfoDTO;
+        return userRegistrationService.registerUser(jwt.getTokenValue());
     }
 
     @PostMapping("subscribe/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public void subscribeUser(@PathVariable String userId) {
+    public boolean subscribeUser(@PathVariable String userId) {
         userService.subscribeUser(userId);
+        return true;
     }
+
+    @PostMapping("unSubscribe/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public boolean unSubscribeUser(@PathVariable String userId) {
+        userService.unSubscribeUser(userId);
+        return true;
+    }
+
+    @GetMapping("/{userId}/history")
+    @ResponseStatus(HttpStatus.OK)
+    public Set<String> userHistory(@PathVariable String userId) {
+        return userService.userHistory(userId);
+    }
+
+
 }

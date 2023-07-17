@@ -1,15 +1,13 @@
 package com.hughtran.videoplatform.controller;
 
+import com.hughtran.videoplatform.dto.CommentDto;
 import com.hughtran.videoplatform.dto.UploadVideoResponse;
 import com.hughtran.videoplatform.dto.VideoDto;
 import com.hughtran.videoplatform.service.VideoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 
@@ -20,41 +18,58 @@ public class VideoController {
 
     private final VideoService videoService;
 
-    @PostMapping("upload")
-    public ResponseEntity<UploadVideoResponse> uploadVideo(@RequestParam("file") MultipartFile file,
-                                                           @RequestParam("userId") String userId,
-                                                           UriComponentsBuilder uriComponentsBuilder) {
-        UploadVideoResponse videoResponse = videoService.uploadVideo(file, userId);
-        var uriComponents = uriComponentsBuilder.path("/{id}").buildAndExpand(videoResponse.getVideoId());
-        return ResponseEntity.created(uriComponents.toUri())
-                .body(videoResponse);
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public UploadVideoResponse uploadVideo(@RequestParam("file") MultipartFile file) {
+        return videoService.uploadVideo(file);
     }
 
-    @PostMapping("thumbnail/upload")
-    public ResponseEntity<String> uploadThumbnail(@RequestParam("file") MultipartFile file,
-                                                  @RequestParam("videoId") String videoId,
-                                                  UriComponentsBuilder uriComponentsBuilder) {
-        String thumbnailUrl = videoService.uploadThumbnail(file, videoId);
-        var uriComponents = uriComponentsBuilder.path("/{id}").buildAndExpand(thumbnailUrl);
-        return ResponseEntity.created(uriComponents.toUri())
-                .body("Thumbnail Uploaded Successfully");
+    @PostMapping("/thumbnail")
+    @ResponseStatus(HttpStatus.CREATED)
+    public String uploadThumbnail(@RequestParam("file") MultipartFile file, @RequestParam("videoId") String videoId) {
+        return videoService.uploadThumbnail(file, videoId);
     }
 
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
-    public VideoDto editVideoMetadata(@RequestBody @Validated VideoDto videoMetaDataDto) {
-        return videoService.editVideoMetadata(videoMetaDataDto);
+    public VideoDto editVideoMetadata(@RequestBody VideoDto videoDto) {
+        return videoService.editVideo(videoDto);
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/{videoId}")
     @ResponseStatus(HttpStatus.OK)
-    public VideoDto getVideoMetaData(@PathVariable String id) {
-        return videoService.getVideo(id);
+    public VideoDto getVideoDetails(@PathVariable String videoId) {
+        return videoService.getVideoDetails(videoId);
+    }
+
+    @PostMapping("/{videoId}/like")
+    @ResponseStatus(HttpStatus.OK)
+    public VideoDto likeVideo(@PathVariable String videoId) {
+        return videoService.likeVideo(videoId);
+    }
+
+    @PostMapping("/{videoId}/disLike")
+    @ResponseStatus(HttpStatus.OK)
+    public VideoDto disLikeVideo(@PathVariable String videoId) {
+        return videoService.disLikeVideo(videoId);
+    }
+
+    @PostMapping("/{videoId}/comment")
+    @ResponseStatus(HttpStatus.OK)
+    public void addComment(@PathVariable String videoId, @RequestBody CommentDto commentDto) {
+        videoService.addComment(videoId, commentDto);
+    }
+
+    @GetMapping("/{videoId}/comment")
+    @ResponseStatus(HttpStatus.OK)
+    public List<CommentDto> getAllComments(@PathVariable String videoId) {
+        return videoService.getAllComments(videoId);
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<VideoDto> getVideoMetaData() {
+    public List<VideoDto> getAllVideos() {
         return videoService.getAllVideos();
     }
+
 }

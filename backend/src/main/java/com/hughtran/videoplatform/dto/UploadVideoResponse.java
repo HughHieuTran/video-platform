@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UploadVideoResponse {
     private String videoId;
-    private String fileName;
+    private String videoUrl;
 }

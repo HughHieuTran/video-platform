@@ -3,32 +3,33 @@ package com.hughtran.videoplatform.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+@Document(value = "User")
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-@Document(value = "Users")
+@AllArgsConstructor
 public class User {
 
+    @Id
     private String id;
     private String firstName;
     private String lastName;
     private String fullName;
-    private String picture;
     private String emailAddress;
     private String sub;
-    private Set<String> subscribedToUsers = new HashSet<>();
-    private Set<String> subscribers = new HashSet<>();
-    private Set<String> videoHistory = new LinkedHashSet<>();
-    private Set<String> likedVideos = new HashSet<>();
-    private Set<String> disLikedVideos = new HashSet<>();
+    private Set<String> subscribedToUsers = ConcurrentHashMap.newKeySet();
+    private Set<String> subscribers = ConcurrentHashMap.newKeySet();
+    private Set<String> videoHistory = ConcurrentHashMap.newKeySet();
+    private Set<String> likedVideos = ConcurrentHashMap.newKeySet();
+    private Set<String> disLikedVideos = ConcurrentHashMap.newKeySet();
 
-    public void addToLikedVideos(String videoId) {
+    public void addToLikeVideos(String videoId) {
         likedVideos.add(videoId);
     }
 
@@ -36,23 +37,31 @@ public class User {
         likedVideos.remove(videoId);
     }
 
-    public void addToDisLikedVideo(String videoId) {
-        disLikedVideos.add(videoId);
+    public void removeFromDislikedVideos(String videoId) {
+        disLikedVideos.remove(videoId);
     }
 
-    public void removeFromDisLikedVideo(String videoId) {
-        disLikedVideos.remove(videoId);
+    public void addToDislikedVideos(String videoId) {
+        disLikedVideos.add(videoId);
     }
 
     public void addToVideoHistory(String videoId) {
         videoHistory.add(videoId);
     }
 
-    public void addToSubscribedUsers(String userId) {
+    public void addToSubscribedToUsers(String userId) {
         subscribedToUsers.add(userId);
     }
 
     public void addToSubscribers(String userId) {
         subscribers.add(userId);
+    }
+
+    public void removeFromSubscribedToUsers(String userId) {
+        subscribedToUsers.remove(userId);
+    }
+
+    public void removeFromSubscribers(String userId) {
+        subscribers.remove(userId);
     }
 }
